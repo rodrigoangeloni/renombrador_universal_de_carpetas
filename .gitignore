@@ -27,6 +27,9 @@ wheels/
 *.log
 compile_linux.sh
 
+# Ejecutables compilados (van en GitHub Releases)
+dist/
+
 # IDEs
 .vscode/
 .idea/
@@ -37,6 +40,3 @@ compile_linux.sh
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# Mantener dist/ pero ignorar logs dentro
-dist/*.log
