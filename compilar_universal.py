@@ -7,8 +7,8 @@ Fecha: 2025-06-01
 
 INSTRUCCIONES:
 1. En Windows: python compilar_universal.py
-2. Se compilará para Windows automáticamente
-3. Si tienes WSL, también compilará para Linux
+2. Se compilará para Windows automáticamente (terminal + GUI)
+3. Si tienes WSL, también compilará para Linux (terminal + GUI)
 4. Los ejecutables estarán en dist/
 """
 
@@ -21,10 +21,11 @@ from pathlib import Path
 
 def print_header():
     """Imprime encabezado del compilador"""
-    print("╔" + "═" * 58 + "╗")
-    print("║" + " " * 15 + "COMPILADOR UNIVERSAL" + " " * 22 + "║")
-    print("║" + " " * 8 + "Renombrador de Carpetas - Windows + Linux" + " " * 8 + "║")
-    print("╚" + "═" * 58 + "╝")
+    print("╔" + "═" * 68 + "╗")
+    print("║" + " " * 15 + "COMPILADOR UNIVERSAL v2.0" + " " * 27 + "║")
+    print("║" + " " * 8 + "Renombrador de Carpetas - Terminal + GUI" + " " * 19 + "║")
+    print("║" + " " * 13 + "Windows + Linux (WSL)" + " " * 33 + "║")
+    print("╚" + "═" * 68 + "╝")
     print()
 
 def check_requirements():
@@ -77,36 +78,68 @@ def clean_previous_builds():
             print(f"   Eliminado: {folder}/")
 
 def compile_windows():
-    """Compila para Windows"""
+    """Compila para Windows - Terminal y GUI"""
     print("\nCompilando para Windows...")
     
     os.makedirs("dist", exist_ok=True)
     
-    cmd = [
+    # Compilar versión terminal
+    cmd_terminal = [
         sys.executable, "-m", "PyInstaller",
         "--onefile",
         "--console", 
-        "--name=renombrador-universal-windows",
+        "--name=renombrador-terminal-windows",
         "--distpath=dist",
-        "--workpath=build/windows",
+        "--workpath=build/windows-terminal",
         "--clean",
         "--noconfirm",
         "rename_folders.py"
     ]
     
+    # Compilar versión GUI
+    cmd_gui = [
+        sys.executable, "-m", "PyInstaller",
+        "--onefile",
+        "--windowed",  # Sin consola para GUI
+        "--name=renombrador-gui-windows",
+        "--distpath=dist",
+        "--workpath=build/windows-gui",
+        "--clean",
+        "--noconfirm",
+        "rename_folders_gui.py"
+    ]
+    
+    success_count = 0
+    
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        exe_path = "dist/renombrador-universal-windows.exe"
+        # Compilar terminal
+        print("  → Compilando versión terminal...")
+        subprocess.run(cmd_terminal, check=True, capture_output=True, text=True)
+        exe_path = "dist/renombrador-terminal-windows.exe"
         if os.path.exists(exe_path):
             size_mb = os.path.getsize(exe_path) / (1024 * 1024)
-            print(f"OK: Windows ejecutable creado - {exe_path} ({size_mb:.1f} MB)")
-            return True
-        else:
-            print("Error: Windows ejecutable no generado")
-            return False
+            print(f"    ✅ Terminal: {exe_path} ({size_mb:.1f} MB)")
+            success_count += 1
+        
+        # Compilar GUI
+        print("  → Compilando versión GUI...")
+        subprocess.run(cmd_gui, check=True, capture_output=True, text=True)
+        exe_path = "dist/renombrador-gui-windows.exe"
+        if os.path.exists(exe_path):
+            size_mb = os.path.getsize(exe_path) / (1024 * 1024)
+            print(f"    ✅ GUI: {exe_path} ({size_mb:.1f} MB)")
+            success_count += 1
+            
     except subprocess.CalledProcessError as e:
-        print(f"Error: Windows compilacion fallida")
+        print(f"    ❌ Error en compilación Windows")
         return False
+    
+    if success_count == 2:
+        print(f"OK: Windows compilación completa ({success_count}/2 versiones)")
+        return True
+    else:
+        print(f"Parcial: Windows compilación ({success_count}/2 versiones)")
+        return success_count > 0
 
 def check_wsl():
     """Verifica si WSL está disponible"""
@@ -124,8 +157,7 @@ def compile_linux():
         print("Aviso: WSL no disponible - saltando Linux")
         print("Info: Para instalar WSL: wsl --install")
         return False
-    
-    # Script para WSL con mejor manejo de errores
+      # Script para WSL con mejor manejo de errores
     wsl_script = """#!/bin/bash
 set -e
 
@@ -133,7 +165,7 @@ echo "=== CONFIGURANDO ENTORNO LINUX ==="
 echo "Verificando Python..."
 if ! command -v python3 &> /dev/null; then
     echo "Instalando Python..."
-    sudo apt update && sudo apt install -y python3 python3-pip python3-dev
+    sudo apt update && sudo apt install -y python3 python3-pip python3-dev python3-tk
 else
     echo "Python3 encontrado: $(python3 --version)"
 fi
@@ -175,17 +207,30 @@ else
     echo "PyInstaller encontrado"
 fi
 
-echo "=== COMPILANDO ==="
+echo "=== COMPILANDO VERSIONES ==="
 mkdir -p dist
+
+echo "Compilando versión terminal..."
 python3 -m PyInstaller \\
     --onefile \\
     --console \\
-    --name="renombrador-universal-linux" \\
+    --name="renombrador-terminal-linux" \\
     --distpath="dist" \\
-    --workpath="build/linux" \\
+    --workpath="build/linux-terminal" \\
     --clean \\
     --noconfirm \\
     rename_folders.py
+
+echo "Compilando versión GUI..."
+python3 -m PyInstaller \\
+    --onefile \\
+    --windowed \\
+    --name="renombrador-gui-linux" \\
+    --distpath="dist" \\
+    --workpath="build/linux-gui" \\
+    --clean \\
+    --noconfirm \\
+    rename_folders_gui.py
 
 if [ -f "dist/renombrador-universal-linux" ]; then
     chmod +x "dist/renombrador-universal-linux"
@@ -193,35 +238,57 @@ if [ -f "dist/renombrador-universal-linux" ]; then
     ls -la "dist/renombrador-universal-linux"
 else
     echo "Error: Linux compilacion fallida"
+    echo "Verificando resultados..."
+if [ -f "dist/renombrador-terminal-linux" ] && [ -f "dist/renombrador-gui-linux" ]; then
+    echo "OK: Ambas versiones compiladas exitosamente"
+    echo "Archivos generados:"
+    ls -la dist/renombrador-*-linux
+else
+    echo "ERROR: No se generaron todos los ejecutables"
     echo "Contenido de dist/:"
     ls -la dist/ || echo "Carpeta dist no existe"
     exit 1
 fi
 """
-      # Escribir script con finales de línea Unix
+      # Escribir script con finales de línea Unix y codificación UTF-8
     script_path = "compile_linux.sh"
-    with open(script_path, 'w', newline='\n') as f:
+    with open(script_path, 'w', newline='\n', encoding='utf-8') as f:
         f.write(wsl_script)
+    
+    success_count = 0
     
     try:
         # Ejecutar con output en tiempo real
         print("Ejecutando WSL...")
         result = subprocess.run(['wsl', 'bash', script_path], 
-                              check=True, capture_output=True, text=True)
+                              check=True, capture_output=True, text=True, encoding='utf-8')
         
         # Mostrar output del proceso
         if result.stdout:
             print("Output WSL:")
             print(result.stdout)
         
-        exe_path = "dist/renombrador-universal-linux"
-        if os.path.exists(exe_path):
-            size_mb = os.path.getsize(exe_path) / (1024 * 1024)
-            print(f"OK: Linux ejecutable creado - {exe_path} ({size_mb:.1f} MB)")
+        # Verificar archivos generados
+        terminal_path = "dist/renombrador-terminal-linux"
+        gui_path = "dist/renombrador-gui-linux"
+        
+        if os.path.exists(terminal_path):
+            size_mb = os.path.getsize(terminal_path) / (1024 * 1024)
+            print(f"    ✅ Terminal: {terminal_path} ({size_mb:.1f} MB)")
+            success_count += 1
+            
+        if os.path.exists(gui_path):
+            size_mb = os.path.getsize(gui_path) / (1024 * 1024)
+            print(f"    ✅ GUI: {gui_path} ({size_mb:.1f} MB)")
+            success_count += 1
+        
+        if success_count == 2:
+            print(f"OK: Linux compilación completa ({success_count}/2 versiones)")
             return True
         else:
-            print("Error: Linux ejecutable no generado")
-            return False
+            print(f"Parcial: Linux compilación ({success_count}/2 versiones)")
+            return success_count > 0
+            
     except subprocess.CalledProcessError as e:
         print("Error: Linux compilacion fallida")
         if e.stdout:
@@ -235,40 +302,62 @@ fi
 
 def create_package():
     """Crea documentación para el paquete"""
-    readme_content = """# Renombrador Universal - Ejecutables Multiplataforma
+    readme_content = """# Renombrador Universal v2.0 - Ejecutables Multiplataforma
 
 ## 🎯 Contenido Compilado
-- renombrador-universal-windows.exe - Para Windows (6.7 MB)
-- renombrador-universal-linux - Para Linux (6.8 MB)
+
+### Windows:
+- renombrador-terminal-windows.exe - Versión terminal para Windows
+- renombrador-gui-windows.exe - Versión gráfica para Windows
+
+### Linux:
+- renombrador-terminal-linux - Versión terminal para Linux
+- renombrador-gui-linux - Versión gráfica para Linux
 
 ## 🚀 Uso
 
-### Windows:
-1. Copia el .exe a la carpeta con carpetas a renombrar
+### Windows Terminal:
+1. Copia renombrador-terminal-windows.exe a la carpeta con carpetas a renombrar
 2. Doble clic para ejecutar
 3. Sigue las instrucciones en pantalla
 
-### Linux:
-1. Copia el ejecutable a la carpeta con carpetas a renombrar
-2. Dar permisos: chmod +x renombrador-universal-linux
-3. Ejecutar: ./renombrador-universal-linux
+### Windows GUI:
+1. Copia renombrador-gui-windows.exe donde quieras
+2. Doble clic para ejecutar
+3. Interfaz gráfica moderna con todas las opciones
 
-## ✨ Funciones
-- Elimina espacios, acentos y caracteres especiales
-- Convierte a minúsculas automáticamente  
-- Vista previa antes de realizar cambios
-- Solo renombra carpetas (preserva archivos)
-- Interfaz moderna con colores y emojis
+### Linux Terminal:
+1. Copia el ejecutable a la carpeta con carpetas a renombrar
+2. Dar permisos: chmod +x renombrador-terminal-linux
+3. Ejecutar: ./renombrador-terminal-linux
+
+### Linux GUI:
+1. Dar permisos: chmod +x renombrador-gui-linux
+2. Ejecutar: ./renombrador-gui-linux
+3. Requiere X11/Wayland para la interfaz gráfica
+
+## ✨ Funciones v2.0
+- ✅ Interfaz terminal (v1) + Interfaz gráfica moderna (v2)
+- ✅ Elimina espacios, acentos y caracteres especiales
+- ✅ Opciones configurables (minúsculas, puntos, números)
+- ✅ Vista previa antes de realizar cambios
+- ✅ Solo renombra carpetas (preserva archivos)
+- ✅ Detección de conflictos
+- ✅ Log detallado de resultados
+- ✅ Ejemplos interactivos
 
 ## 📋 Compilado con
 - Python 3.11+ y PyInstaller
+- tkinter para la interfaz gráfica
 - Sistema dual Windows + WSL para máxima compatibilidad
 - Generado automáticamente desde Windows usando WSL
 
 ## 🎮 Perfecto para
 - Skins de Assetto Corsa
-- Organización de archivos
+- Organización de archivos multimedia
 - Normalización de nombres de directorios
+- Proyectos web (nombres compatibles con servidores)
+- Cualquier carpeta que necesite nombres limpios
 """
     
     with open("dist/README.txt", "w", encoding="utf-8") as f:
@@ -283,27 +372,43 @@ def main():
     
     clean_previous_builds()
     
-    # Compilar
-    windows_ok = compile_windows()
+    # Compilar    windows_ok = compile_windows()
     linux_ok = compile_linux()
     
     if windows_ok or linux_ok:
         create_package()
         
-        print("\n" + "╔" + "═" * 58 + "╗")
-        print("║" + " " * 17 + "COMPILACION COMPLETADA" + " " * 18 + "║")
-        print("╚" + "═" * 58 + "╝")
-        print("\nResultados:")
+        print("\n" + "╔" + "═" * 68 + "╗")
+        print("║" + " " * 17 + "COMPILACION v2.0 COMPLETADA" + " " * 23 + "║")
+        print("╚" + "═" * 68 + "╝")
+        print("\n🎯 Resultados de Compilación:")
         
         if windows_ok:
-            print("OK: Windows ejecutable creado - dist/renombrador-universal-windows.exe")
+            print("  ✅ Windows:")
+            if os.path.exists("dist/renombrador-terminal-windows.exe"):
+                size = os.path.getsize("dist/renombrador-terminal-windows.exe") / (1024 * 1024)
+                print(f"     • Terminal: renombrador-terminal-windows.exe ({size:.1f} MB)")
+            if os.path.exists("dist/renombrador-gui-windows.exe"):
+                size = os.path.getsize("dist/renombrador-gui-windows.exe") / (1024 * 1024)
+                print(f"     • GUI: renombrador-gui-windows.exe ({size:.1f} MB)")
         else:
-            print("Error: Windows no compilado")
+            print("  ❌ Windows: Compilación fallida")
             
         if linux_ok:
-            print("OK: Linux ejecutable creado - dist/renombrador-universal-linux")
+            print("  ✅ Linux:")
+            if os.path.exists("dist/renombrador-terminal-linux"):
+                size = os.path.getsize("dist/renombrador-terminal-linux") / (1024 * 1024)
+                print(f"     • Terminal: renombrador-terminal-linux ({size:.1f} MB)")
+            if os.path.exists("dist/renombrador-gui-linux"):
+                size = os.path.getsize("dist/renombrador-gui-linux") / (1024 * 1024)
+                print(f"     • GUI: renombrador-gui-linux ({size:.1f} MB)")
         else:
-            print("Error: Linux no compilado")
+            print("  ❌ Linux: Compilación fallida (verifica WSL)")
+            
+        # Contar archivos generados
+        exe_files = [f for f in os.listdir("dist") if f.startswith("renombrador-") and not f.endswith(".txt")]
+        print(f"\n📦 Total: {len(exe_files)} ejecutables generados en dist/")
+        print("📖 Ver dist/README.txt para instrucciones completas")
         
         print(f"\nTodos los archivos estan en: dist/")
         print("Instrucciones incluidas en: dist/README.txt")

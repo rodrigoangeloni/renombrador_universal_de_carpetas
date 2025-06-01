@@ -1,9 +1,19 @@
-# 📁 Renombrador Universal de Carpetas v1.0
+# 📁 Renombrador Universal de Carpetas v2.0
 
-> **🎉 Versión 1.0 - Release Estable**  
-> Sistema de compilación dual Windows + Linux con WSL
+> **🎉 Versión 2.0 - GUI Moderna + Terminal**  
+> 4 versiones compiladas: Terminal y GUI para Windows/Linux usando WSL
 
-Una herramienta moderna y multiplataforma para normalizar nombres de carpetas, eliminando espacios, acentos y caracteres especiales. Perfecta para organizar carpetas de skins de Assetto Corsa y cualquier otro tipo de archivos.
+Una herramienta moderna y multiplataforma para normalizar nombres de carpetas, eliminando espacios, acentos y caracteres especiales. Disponible con interfaz gráfica moderna y versión terminal. Perfecta para organizar carpetas de skins de Assetto Corsa y cualquier otro tipo de archivos.
+
+## 🆕 Nuevo en v2.0
+- **🖼️ Interfaz Gráfica Moderna**: GUI completa con tkinter
+- **📋 Previsualización en Tiempo Real**: Ve los cambios antes de aplicarlos
+- **📑 Sistema de Pestañas**: Vista previa y registro de actividad
+- **⚙️ Configuración Visual**: Checkboxes para todas las opciones
+- **🎯 Selección de Directorio**: Navegador de carpetas integrado
+- **📈 Barra de Progreso**: Seguimiento visual del proceso
+- **❓ Sistema de Ayuda**: Ejemplos interactivos y documentación
+- **🧵 Procesamiento Asíncrono**: Interfaz no bloqueante durante operaciones
 
 ## 🎯 ¿Para qué sirve?
 
@@ -17,11 +27,11 @@ Este programa es perfecto cuando necesitas:
 
 ## ✨ Características Principales
 
-### 🖥️ Interfaz Moderna
-- Menús claros con emojis y colores
-- Guía paso a paso para usuarios nuevos
-- Pantalla de bienvenida explicativa
-- Confirmaciones de seguridad
+### 🖥️ Doble Interfaz
+- **GUI Moderna**: Interfaz gráfica intuitiva con tkinter
+- **Terminal Clásica**: Versión línea de comandos para automatización
+- Misma funcionalidad en ambas versiones
+- Configuraciones sincronizadas entre versiones
 
 ### ⚙️ Opciones Personalizables
 - **Convertir a minúsculas**: TODO → todo
@@ -36,24 +46,58 @@ Este programa es perfecto cuando necesitas:
 - Detección de conflictos
 - Solo renombra carpetas (no toca archivos)
 - Manejo robusto de errores
+- Registro detallado de todas las operaciones
 
 ## 🎮 Uso del Programa
 
 ### Opción 1: Ejecutables Precompilados (Recomendado)
-1. Descarga el ejecutable para tu sistema operativo
-2. Copia el ejecutable a la carpeta que contiene las carpetas que quieres renombrar
-3. Ejecuta el programa:
-   - **Windows**: Doble clic en `renombrador-universal-windows.exe`
-   - **Linux**: `./renombrador-universal-linux`
-4. Sigue las instrucciones en pantalla
+
+Descarga la versión que necesites:
+
+#### Windows
+- **GUI**: `renombrador-gui-windows.exe` - Interfaz gráfica moderna
+- **Terminal**: `renombrador-terminal-windows.exe` - Línea de comandos
+
+#### Linux  
+- **GUI**: `renombrador-gui-linux` - Interfaz gráfica moderna
+- **Terminal**: `renombrador-terminal-linux` - Línea de comandos
+
+**Uso GUI**:
+1. Ejecuta el archivo GUI correspondiente
+2. Selecciona la carpeta usando el botón "Examinar"
+3. Configura las opciones con los checkboxes
+4. Revisa la previsualización en la pestaña "Vista Previa"
+5. Haz clic en "Renombrar Carpetas" para aplicar cambios
+
+**Uso Terminal**:
+1. Copia el ejecutable terminal a la carpeta que contiene las subcarpetas
+2. Ejecuta el programa desde terminal o doble clic
+3. Sigue las instrucciones en pantalla
 
 ### Opción 2: Ejecutar desde Python
+
+**GUI Version**:
+```bash
+# Asegúrate de tener Python 3.7+ y tkinter instalado
+python rename_folders_gui.py
+```
+
+**Terminal Version**:
 ```bash
 # Asegúrate de tener Python 3.7+ instalado
 python rename_folders.py
 ```
 
 ### 🎯 Flujo de Uso
+
+**Interfaz Gráfica (GUI)**:
+1. **Selección**: Elige la carpeta con el navegador
+2. **Configuración**: Marca/desmarca opciones con checkboxes
+3. **Vista previa**: Revisa cambios en la pestaña "Vista Previa"
+4. **Ejecución**: Haz clic en "Renombrar Carpetas"
+5. **Seguimiento**: Observa el progreso y logs en tiempo real
+
+**Terminal**:
 1. **Vista previa**: Revisa qué cambios se realizarían
 2. **Confirmación**: Decide si proceder con los cambios
 3. **Ejecución**: El programa renombra las carpetas automáticamente
@@ -69,9 +113,11 @@ python rename_folders.py
 | `DOCUMENTOS IMPORTANTES!!!` | `documentos_importantes` |
 | `Skins Ferrari F40 (Assetto Corsa)` | `skins_ferrari_f40_assetto_corsa` |
 
-## 🚀 Compilación Dual (Windows + Linux con WSL)
+## 🚀 Compilación Universal (4 Versiones desde Windows)
 
-Este proyecto está **optimizado para Windows con WSL** para generar ambos ejecutables automáticamente en una sola compilación.
+Este proyecto está **optimizado para Windows con WSL** para generar automáticamente **4 ejecutables** en una sola compilación:
+- Terminal Windows + GUI Windows
+- Terminal Linux + GUI Linux
 
 ### 📋 Prerrequisitos (Solo Windows)
 
@@ -82,29 +128,28 @@ Este proyecto está **optimizado para Windows con WSL** para generar ambos ejecu
    ```
 3. **Python 3.x** instalado en Windows
 
-### 🚀 Compilar Ambos Ejecutables
+### 🚀 Compilar las 4 Versiones
 
-El sistema automaticamente:
-- ✅ **Compila para Windows** usando tu Python local
-- ✅ **Compila para Linux** usando WSL automáticamente 
+El sistema automáticamente:
+- ✅ **Compila 2 versiones Windows** (Terminal + GUI) usando Python local
+- ✅ **Compila 2 versiones Linux** (Terminal + GUI) usando WSL automáticamente 
 - ✅ **Instala dependencias** automáticamente (incluso en entornos gestionados)
 - ✅ **Maneja errores** de instalación de PyInstaller en WSL
+- ✅ **Instala tkinter** para soporte GUI en Linux
 
-**Método 1: Doble clic (Más fácil)**
-```cmd
-# Solo haz doble clic en:
-compilar_simple.bat
-```
-
-**Método 2: PowerShell**
-```powershell
-.\compilar_simple.ps1
-```
-
-**Método 3: Python directo**
+**Ejecutar compilación universal**:
 ```bash
 python compilar_universal.py
 ```
+
+### 📦 Archivos Resultantes
+
+Después de la compilación encontrarás en `/dist`:
+- `renombrador-terminal-windows.exe` (6.7 MB)
+- `renombrador-gui-windows.exe` (9.6 MB) 
+- `renombrador-terminal-linux` (6.8 MB)
+- `renombrador-gui-linux` (6.8 MB)
+- `README.txt` (Documentación completa)
 
 ### 📦 Resultado de la Compilación
 
